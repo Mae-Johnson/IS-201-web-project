@@ -1,0 +1,328 @@
+:root {
+    --white: #ffffff;
+    --near-white: #f8fafc;
+    --navy-blue: #002e5d; /* BYU Regal Navy */
+    --aesthetic-green: #e0f2f1; /* Soft Mint/Seafoam (Accent) */
+    --text-primary: #1f2937;
+    --text-secondary: #6b7280;
+    
+    --serif: 'Playfair Display', serif;
+    --sans: 'Poppins', sans-serif;
+    
+    --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+    color-scheme: light;
+}
+
+body {
+    font-family: var(--sans);
+    background-color: var(--white);
+    color: var(--text-primary);
+    line-height: 1.7;
+    font-weight: 300;
+}
+
+/* Container */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 40px;
+}
+
+/* Aesthetic Navigation */
+.aesthetic-nav {
+    position: absolute; /* Minimalist: overlay on hero */
+    top: 0;
+    width: 100%;
+    padding: 40px 0;
+    z-index: 1000;
+}
+
+.nav-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 0 50px;
+}
+
+.logo {
+    font-family: var(--serif);
+    font-weight: 700;
+    font-size: 2rem;
+    color: var(--navy-blue);
+    border: 1px solid var(--navy-blue);
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nav-links {
+    display: flex;
+    list-style: none;
+    gap: 40px;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: var(--navy-blue);
+    font-weight: 400;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    position: relative;
+    transition: var(--transition-smooth);
+}
+
+.nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 0%;
+    height: 1px;
+    background-color: var(--navy-blue);
+    transition: var(--transition-smooth);
+}
+
+.nav-links a:hover::after {
+    width: 100%;
+}
+
+/* Minimalist Hero Section */
+.aesthetic-hero {
+    height: 90vh;
+    background-color: var(--near-white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.hero-subtitle {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: var(--text-secondary);
+    margin-bottom: 20px;
+}
+
+.hero-content h1 {
+    font-family: var(--serif);
+    font-size: 5rem;
+    font-weight: 700;
+    color: var(--navy-blue);
+    line-height: 1.1;
+}
+
+.hero-content h1 span {
+    color: var(--text-primary);
+    position: relative;
+    display: inline-block;
+}
+
+.hero-content h1 span::after {
+    content: '';
+    position: absolute;
+    width: 110%;
+    height: 15px;
+    background-color: var(--aesthetic-green);
+    bottom: 10px;
+    left: -5%;
+    z-index: -1;
+}
+
+.hero-description {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    margin-top: 30px;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Gallery Section */
+.heritage-gallery {
+    padding: 120px 0;
+}
+
+.section-title {
+    font-family: var(--serif);
+    font-size: 2.5rem;
+    color: var(--navy-blue);
+    margin-bottom: 60px;
+    text-align: center;
+}
+
+.gallery-wrapper {
+    display: flex;
+    gap: 30px;
+    align-items: flex-end;
+}
+
+.gallery-item {
+    position: relative;
+    border-radius: 4px; /* Minimalist rounding */
+    overflow: hidden;
+}
+
+.gallery-item.large { flex: 2; }
+.gallery-item.small { flex: 1; }
+
+.gallery-item img {
+    width: 100%;
+    height: 450px;
+    object-fit: cover;
+    display: block;
+    transition: var(--transition-smooth);
+}
+
+.gallery-item:hover img {
+    transform: scale(1.03);
+}
+
+.img-caption {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    color: var(--white);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 400;
+    background: rgba(0,0,0,0.5);
+    padding: 5px 10px;
+}
+
+/* Rituals Lists Section */
+.rituals-container {
+    background-color: var(--near-white);
+    padding: 120px 0;
+}
+
+.grid-two-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 50px;
+}
+
+/* Aesthetic Cards */
+.aesthetic-card {
+    background: var(--white);
+    padding: 60px;
+    border-radius: 4px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.03); /* Extremely subtle depth */
+    transition: var(--transition-smooth);
+    border: 1px solid rgba(0,0,0,0.02);
+}
+
+.aesthetic-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.05);
+}
+
+.aesthetic-card h3 {
+    font-family: var(--serif);
+    font-size: 1.8rem;
+    color: var(--navy-blue);
+    margin-bottom: 10px;
+}
+
+.aesthetic-card p {
+    color: var(--text-secondary);
+    margin-bottom: 30px;
+    font-size: 0.9rem;
+}
+
+.aesthetic-card ul, .aesthetic-card ol {
+    list-style-position: outside;
+    padding-left: 0;
+}
+
+.aesthetic-card ul li, .aesthetic-card ol li {
+    font-size: 1rem;
+    color: var(--text-primary);
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(0,0,0,0.04); /* Minimalist separator */
+}
+
+/* Unordered List Dots (Green) */
+.aesthetic-card.unordered ul {
+    list-style-type: none;
+}
+
+.aesthetic-card.unordered ul li {
+    position: relative;
+    padding-left: 25px;
+}
+
+.aesthetic-card.unordered ul li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 10px;
+    width: 8px;
+    height: 8px;
+    background-color: var(--aesthetic-green);
+    border-radius: 50%;
+}
+
+/* Ordered List Numbers (Navy) */
+.aesthetic-card.ordered ol {
+    counter-reset: ritual-counter;
+    list-style-type: none;
+}
+
+.aesthetic-card.ordered ol li {
+    counter-increment: ritual-counter;
+    position: relative;
+    padding-left: 40px;
+}
+
+.aesthetic-card.ordered ol li::before {
+    content: counter(ritual-counter);
+    position: absolute;
+    left: 0;
+    font-weight: 600;
+    color: var(--navy-blue);
+    font-size: 1.2rem;
+    font-family: var(--serif);
+    line-height: 1;
+}
+
+/* Modern Footer */
+footer {
+    padding: 80px 0;
+    text-align: center;
+}
+
+.footer-content {
+    display: inline-block;
+}
+
+.footer-content p {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.accent-line {
+    width: 50px;
+    height: 1px;
+    background-color: var(--navy-blue);
+    margin: 20px auto 0;
+}

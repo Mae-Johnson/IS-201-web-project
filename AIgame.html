@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hippo Run - Mae Johnson Edition</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&family=Orbitron:wght@700&family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+    <style>
+        :root {
+            --mario-red: #E52521;
+            --mario-yellow: #fbd000;
+            --jungle-dark: #020a02;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: var(--jungle-dark);
+            color: white;
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+            padding-top: 100px;
+        }
+
+        /* --- PORTFOLIO NAVIGATION BAR --- */
+        .navbar { transition: all 0.3s ease; }
+        .nav-link {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 600;
+            color: #444 !important;
+            transition: color 0.2s ease;
+        }
+        .nav-link:hover { color: #0001fc !important; }
+
+        /* --- GAME LAYOUT --- */
+        #game-wrapper {
+            position: relative; border-radius: 20px; overflow: hidden;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 50px rgba(0, 255, 100, 0.2);
+        }
+        canvas { display: block; background: linear-gradient(to bottom, #051a05, #004d00); }
+
+        .hud-overlay {
+            position: absolute; top: 20px; left: 20px;
+            font-family: 'Orbitron', sans-serif; font-size: 1.4rem;
+            text-shadow: 0 0 10px rgba(0,255,0,0.5); pointer-events: none;
+        }
+
+        .controls-footer { margin-top: 25px; display: flex; gap: 20px; }
+        .key-capsule {
+            background: rgba(255, 255, 255, 0.05); padding: 10px 20px;
+            border-radius: 12px; font-size: 0.85rem; border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        b { color: var(--mario-yellow); }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-white py-3 shadow-sm fixed-top">
+        <div class="container px-5">
+            <a class="navbar-brand fw-bold text-primary" style="font-family: 'Plus Jakarta Sans';" href="index.html">Mae Johnson</a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link px-3" href="index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link px-3" href="index.html#about">About</a></li>
+                    <li class="nav-item"><a class="nav-link px-3" href="index.html#experience">Experience</a></li>
+                    <li class="nav-item"><a class="nav-link px-3 text-primary" href="AIgame.html">AI Game</a></li>
+                    <li class="nav-item"><a class="nav-link px-3" href="scratch.html">Scratch</a></li>
+                    <li class="nav-item"><a class="nav-link px-3" href="index.html#contact">Contact</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div id="game-wrapper">
+        <div class="hud-overlay">SCORE: <span id="scoreDisplay">00000</span></div>
+        <canvas id="gameCanvas" width="900" height="450"></canvas>
+    </div>
+    
+    <div class="controls-footer">
+        <div class="key-capsule"><b>SPACE</b> TO JUMP</div>
+        <div class="key-capsule"><b>ENTER</b> TO RESTART</div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreEl = document.getElementById('scoreDisplay');
+
+        const GRAVITY = 0.8;
+        const JUMP = -13;
+        const GROUND_Y = 390;
+        let currentSpeed = 6;
+
+        let state = {
+            score: 0, active: true, frame: 0,
+            pipes: [],
+            parallax: Array.from({length: 12}, () => ({
+                x: Math.random() * 900, y: Math.random() * 300, 
+                size: 40 + Math.random() * 60, speed: 0.2 + Math.random() * 0.5
+            }))
+        };
+
+        const hippo = {
+            x: 120, y: 340, w: 60, h: 45, dy: 0, onGround: true, onObject: false,
+            
+            draw() {
+                ctx.save();
+                ctx.translate(this.x + this.w/2, this.y + this.h);
+                if (!this.onGround && !this.onObject) ctx.rotate(this.dy * 0.02);
+                
+                let squash = 1 + (Math.abs(this.dy) * 0.015);
+                if (this.onGround || this.onObject) squash = 1; 
+                ctx.scale(1/squash, squash);
+                ctx.translate(-this.w/2, -this.h);
+
+                ctx.fillStyle = "#7a7a99";
+                const walk = (state.active && (this.onGround || this.onObject)) ? Math.sin(state.frame * 0.25) * 8 : 0;
+                [8, 22, 36, 50].forEach((lx, i) => {
+                    ctx.fillRect(lx, 32, 10, 15 + (i % 2 === 0 ? walk : -walk));
+                });
+
+                ctx.fillStyle = "#8a8ab0";
+                ctx.beginPath(); ctx.ellipse(30, 22, 30, 20, 0, 0, Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.ellipse(52, 28, 15, 12, 0, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = "#E52521";
+                ctx.fillRect(10, 2, 35, 10); ctx.fillRect(5, 10, 45, 4); 
+                ctx.fillStyle = "white"; ctx.beginPath(); ctx.arc(45, 18, 5, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = "black"; ctx.beginPath(); ctx.arc(47, 18, 2, 0, Math.PI*2); ctx.fill();
+                ctx.restore();
+            },
+
+            update() {
+                this.dy += GRAVITY;
+                this.y += this.dy;
+                this.onObject = false;
+
+                if (this.y > GROUND_Y - this.h) {
+                    this.y = GROUND_Y - this.h;
+                    this.dy = 0;
+                    this.onGround = true;
+                } else {
+                    this.onGround = false;
+                }
+
+                state.pipes.forEach(p => {
+                    if (this.x + this.w - 15 > p.x && this.x + 15 < p.x + p.w) {
+                        if (this.dy >= 0 && this.y + this.h <= p.y + 15 && this.y + this.h >= p.y - 10) {
+                            this.y = p.y - this.h;
+                            this.dy = 0;
+                            this.onObject = true;
+                        } 
+                        else if (this.y + this.h > p.y + 15) {
+                            state.active = false;
+                        }
+                    }
+                });
+            }
+        };
+
+        function drawBackground() {
+            state.parallax.forEach(l => {
+                if (state.active) l.x -= l.speed; 
+                if (l.x < -120) l.x = canvas.width + 120;
+                ctx.fillStyle = "rgba(45, 90, 39, 0.15)";
+                ctx.beginPath(); ctx.arc(l.x, l.y, l.size, 0, Math.PI*2); ctx.fill();
+            });
+
+            ctx.fillStyle = "#261910";
+            ctx.fillRect(0, GROUND_Y, canvas.width, canvas.height - GROUND_Y);
+            
+            ctx.strokeStyle = "#2d5a27"; ctx.lineWidth = 2;
+            for(let i=0; i<canvas.width; i+=15) {
+                let offset = (state.frame * currentSpeed) % 15;
+                let h = 10 + Math.sin((state.frame + i) * 0.1) * 5;
+                ctx.beginPath(); ctx.moveTo(i - offset, GROUND_Y);
+                ctx.lineTo(i - offset, GROUND_Y - h); ctx.stroke();
+            }
+        }
+
+        function gameLoop() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            if (state.active) state.frame++;
+
+            drawBackground();
+
+            let spawnRate = Math.max(50, 90 - Math.floor(state.score / 500));
+            if (state.active && state.frame % spawnRate === 0) {
+                const maxSiloHeight = hippo.h * 2;
+                const minSiloHeight = 40;
+                const h = minSiloHeight + Math.random() * (maxSiloHeight - minSiloHeight);
+                state.pipes.push({ x: canvas.width, y: GROUND_Y - h, w: 75, h: h, passed: false });
+            }
+
+            state.pipes.forEach((p, i) => {
+                if (state.active) p.x -= currentSpeed;
+
+                let g = ctx.createLinearGradient(p.x, p.y, p.x + p.w, p.y);
+                g.addColorStop(0, "#143314"); g.addColorStop(0.5, "#3a7333"); g.addColorStop(1, "#143314");
+                ctx.fillStyle = g; ctx.fillRect(p.x, p.y, p.w, p.h);
+                ctx.fillStyle = "#4caf50"; ctx.fillRect(p.x - 5, p.y, p.w + 10, 15);
+
+                if (!p.passed && p.x + p.w < hippo.x) {
+                    p.passed = true;
+                    state.score += 100;
+                    currentSpeed += 0.08; 
+                    scoreEl.innerText = state.score.toString().padStart(5, '0');
+                }
+                if (p.x + p.w < -50) state.pipes.splice(i, 1);
+            });
+
+            hippo.update();
+            hippo.draw();
+
+            if (!state.active) {
+                ctx.fillStyle = "rgba(0,0,0,0.8)"; ctx.fillRect(0,0, canvas.width, canvas.height);
+                ctx.fillStyle = "white"; ctx.textAlign = "center";
+                ctx.font = "bold 40px Orbitron"; ctx.fillText("GAME OVER", canvas.width/2, 200);
+                ctx.font = "18px Poppins"; ctx.fillText("PRESS ENTER TO RESTART", canvas.width/2, 250);
+            }
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        window.addEventListener('keydown', e => {
+            if (e.code === 'Space' && (hippo.onGround || hippo.onObject) && state.active) hippo.dy = JUMP;
+            if (e.code === 'Enter' && !state.active) {
+                state.score = 0; state.active = true; state.frame = 0; state.pipes = [];
+                currentSpeed = 6; hippo.y = 340; hippo.dy = 0; scoreEl.innerText = "00000";
+            }
+        });
+
+        gameLoop();
+    </script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
